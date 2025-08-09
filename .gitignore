@@ -17,3 +17,6 @@ mono_crash.*.json
 
 # Wakatime extension
 addons/godot_super-wakatime/
+
+# Vscode (when coding in VSCode) 
+.vscode/
