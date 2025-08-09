@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://bs72ogkvdd7d6"]
+
+[ext_resource type="Script" uid="uid://cug7ehsih2bp5" path="res://scripts/snake_controller.gd" id="1_ucva2"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_front"]
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ucva2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iof21"]
+
+[node name="SnakeController" type="CharacterBody3D"]
+script = ExtResource("1_ucva2")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_front")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_ucva2")
+
+[node name="Collider" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_iof21")
+
+[node name="Head" type="Node3D" parent="."]
+
+[node name="FirstPersonCamera" type="Camera3D" parent="Head"]
+
+[node name="ThirdPersonCamera" type="Camera3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 3, 6)
