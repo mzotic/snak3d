@@ -25,4 +25,5 @@ shape = SubResource("BoxShape3D_iof21")
 [node name="FirstPersonCamera" type="Camera3D" parent="Head"]
 
 [node name="ThirdPersonCamera" type="Camera3D" parent="Head"]
-transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 3, 6)
+transform = Transform3D(1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 2.5, 6)
+fov = 58.9

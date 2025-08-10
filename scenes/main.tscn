@@ -1,6 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://wgvann0k8r8n"]
+[gd_scene load_steps=7 format=3 uid="uid://wgvann0k8r8n"]
 
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://scenes/snake_controller.tscn" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://yxi6epq06wws" path="res://scripts/main.gd" id="2_main"]
+[ext_resource type="Script" uid="uid://sksdp1nfyvcv" path="res://scripts/game_controller.gd" id="3_game"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ig7tw"]
 sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
@@ -16,6 +18,10 @@ tonemap_mode = 2
 
 [node name="Main" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.003, 0)
+script = ExtResource("2_main")
+
+[node name="GameController" type="Node" parent="."]
+script = ExtResource("3_game")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_h2yge")
@@ -52,5 +58,5 @@ transform = Transform3D(-4.37114e-08, -1, 0, -4.37114e-08, 1.91069e-15, -1, 1, -
 size = Vector3(20, 1, 20)
 
 [node name="SnakeController" parent="." instance=ExtResource("1_o5qli")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.89997, 0.502598, 5.99929)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.19997, 1.3026, 5.99929)
 motion_mode = 1
