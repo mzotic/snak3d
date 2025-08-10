@@ -42,6 +42,10 @@ var grid : Array[Array] = []  # 3D array [x][y][z]
 # Food management
 var food_position : Vector3i = Vector3i(-1, -1, -1)
 var has_food : bool = false
+# Eating radius in cells (Chebyshev distance)
+@export var eat_radius_cells: int = 3
+# Runtime visual node for food (sphere mesh + cube hitbox)
+var food_node: Node3D
 
 # Reference to snake controller for turn animations
 var snake_controller : CharacterBody3D
@@ -129,6 +133,42 @@ func get_grid_cell(pos: Vector3i) -> CellType:
 		return grid[pos.x][pos.y][pos.z]
 	return CellType.WALL  # Out of bounds is considered a wall
 
+# Create/position the visual food node (sphere mesh + cube collider)
+func _create_or_update_food_visual():
+	if not is_instance_valid(food_node):
+		food_node = Node3D.new()
+		food_node.name = "Food"
+		# Parent under the current scene root (Node3D) if possible so transforms work
+		var root = get_tree().get_current_scene()
+		if root and root is Node3D:
+			root.add_child(food_node)
+		else:
+			add_child(food_node)
+		# Cube hitbox
+		var collider := CollisionShape3D.new()
+		var box := BoxShape3D.new()
+		box.size = Vector3.ONE * cell_size
+		collider.shape = box
+		food_node.add_child(collider)
+		# Sphere mesh (orange)
+		var mesh_instance := MeshInstance3D.new()
+		var sphere := SphereMesh.new()
+		sphere.radius = 0.4 * cell_size
+		sphere.rings = 24
+		sphere.radial_segments = 24
+		mesh_instance.mesh = sphere
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = Color(1.0, 0.5, 0.0) # orange
+		mesh_instance.material_override = mat
+		food_node.add_child(mesh_instance)
+	# Position it at current food cell center
+	food_node.global_position = grid_to_world(food_position)
+
+func _destroy_food_visual():
+	if is_instance_valid(food_node):
+		food_node.queue_free()
+	food_node = null
+
 ## Move the snake one step forward
 func move_snake():
 	if snake_segments.is_empty():
@@ -149,10 +189,21 @@ func move_snake():
 		is_game_active = false
 		return
 	
-	# Check if snake ate food
-	var ate_food = (cell_at_new_pos == CellType.FOOD)
+	# Check if snake ate food (within radius in cells around food)
+	var ate_food := false
+	if has_food:
+		var d: Vector3i = new_head_pos - food_position
+		var chebyshev: int = max(max(abs(d.x), abs(d.y)), abs(d.z))
+		if chebyshev <= eat_radius_cells:
+			ate_food = true
+	
 	if ate_food:
 		snake_ate_food.emit()
+		# Clear grid cell where the food was (in case head didn't move onto it)
+		if is_valid_grid_position(food_position) and get_grid_cell(food_position) == CellType.FOOD:
+			set_grid_cell(food_position, CellType.EMPTY)
+		# Remove visual
+		_destroy_food_visual()
 		has_food = false
 		snake_length += 1
 		spawn_food()
@@ -337,6 +388,7 @@ func spawn_food():
 		food_position = empty_positions[randi() % empty_positions.size()]
 		set_grid_cell(food_position, CellType.FOOD)
 		has_food = true
+		_create_or_update_food_visual()
 
 ## Get all snake segment positions in world coordinates
 func get_snake_world_positions() -> Array[Vector3]:
@@ -359,6 +411,7 @@ func get_food_world_position() -> Vector3:
 func restart_game():
 	initialize_grid()
 	initialize_snake()
+	_destroy_food_visual()
 	spawn_food()
 	is_game_active = true
 	move_timer = 0.0
