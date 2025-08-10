@@ -1,0 +1,49 @@
+[gd_scene load_steps=7 format=3 uid="uid://m1dlglkyd8as"]
+
+[ext_resource type="Texture2D" uid="uid://cemk1n1blsmaf" path="res://assets/main_menu/title.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://cspi72jbvfvmy" path="res://assets/main_menu/bush-border.png" id="1_2wh52"]
+[ext_resource type="Script" uid="uid://rq8a1x8f20dt" path="res://scripts/main_menu.gd" id="1_ow34m"]
+[ext_resource type="Texture2D" uid="uid://b05hato66dhf6" path="res://assets/main_menu/version.png" id="5"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ow34m"]
+texture = ExtResource("1_2wh52")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2wh52"]
+bg_color = Color(1, 1, 1, 0)
+shadow_offset = Vector2(0, 3.41)
+
+[node name="MainMenu" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+script = ExtResource("1_ow34m")
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_ow34m")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="Logo" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+texture = ExtResource("1")
+stretch_mode = 3
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 37
+theme_override_styles/normal = SubResource("StyleBoxFlat_2wh52")
+text = "START"
+
+[node name="Version" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("5")
+stretch_mode = 3
+
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_button_pressed"]

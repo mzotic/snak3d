@@ -27,6 +27,9 @@ var anim_duration: float = 0.3
 var anim_prev_positions: Array[Vector3] = []
 var anim_next_positions: Array[Vector3] = []
 
+# New: optional FoodController reference
+var food_controller: FoodController
+
 func _ready():
 	setup_materials()
 	setup_visual_scenes()
@@ -34,6 +37,15 @@ func _ready():
 	
 	# Set snake controller reference in game controller
 	game_controller.snake_controller = snake_controller
+	
+	# Ensure FoodController exists and is wired to GameController
+	var fc_node := get_node_or_null("FoodController")
+	if fc_node == null:
+		food_controller = FoodController.new()
+		food_controller.game_controller = game_controller
+		add_child(food_controller)
+	else:
+		food_controller = fc_node
 	
 	# Position the snake controller at the initial head position
 	update_snake_visuals()
@@ -43,9 +55,13 @@ func _ready():
 	var initial_up = game_controller.get_snake_up_direction() if game_controller.has_method("get_snake_up_direction") else Vector3i(0,1,0)
 	snake_controller.on_snake_orientation_changed(initial_forward, initial_up)
 	
+	# Ensure one food exists (GameController already spawns by default; this is a safety net)
+	if not game_controller.has_food and is_instance_valid(food_controller):
+		food_controller.spawn_food_random()
+	
 	# Size and position the world walls to match the GameController's grid in world space
 	setup_walls()
-	
+
 func _process(delta):
 	# Smoothly animate between prev and next positions when a move starts
 	if anim_active:

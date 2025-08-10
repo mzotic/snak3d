@@ -13,11 +13,11 @@ signal snake_orientation_changed(new_forward: Vector3i, new_up: Vector3i)
 signal snake_move_started(prev_positions: Array[Vector3], next_positions: Array[Vector3], duration: float)
 
 ## Grid dimensions (cells in each direction)
-@export var grid_size : Vector3i = Vector3i(100,100,100)
+@export var grid_size : Vector3i = Vector3i(30,30,30)
 ## Size of each grid cell in world units
 @export var cell_size : float = 1.0
 ## World bounds offset from center
-@export var world_bounds : Vector3 = Vector3(100, 100, 100)
+@export var world_bounds : Vector3 = Vector3(8, 8, 8)
 
 # Snake data structure
 var snake_segments : Array[Vector3i] = []  # Grid positions of snake segments
