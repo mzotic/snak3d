@@ -34,6 +34,8 @@ var snake_right: Vector3i = Vector3i(1, 0, 0)
 var is_game_active : bool = false
 var move_timer : float = 0.0
 var move_interval : float = 0.3  # Time between moves in seconds
+# Prevent multiple game over triggers
+var game_over_in_progress: bool = false
 
 # 3D Grid to track what's in each cell
 enum CellType { EMPTY, SNAKE, FOOD, WALL }
@@ -185,8 +187,7 @@ func move_snake():
 	# Check collision with walls or self
 	var cell_at_new_pos = get_grid_cell(new_head_pos)
 	if cell_at_new_pos == CellType.WALL or cell_at_new_pos == CellType.SNAKE:
-		game_over.emit()
-		is_game_active = false
+		_trigger_game_over()
 		return
 	
 	# Check if snake ate food (within radius in cells around food)
@@ -415,6 +416,27 @@ func restart_game():
 	spawn_food()
 	is_game_active = true
 	move_timer = 0.0
+	game_over_in_progress = false
+
+# Freeze for 3 seconds then change to Game Over scene
+func _trigger_game_over() -> void:
+	if game_over_in_progress:
+		return
+	game_over_in_progress = true
+	is_game_active = false
+	game_over.emit()
+	# Wait 3 seconds, then switch to the Game Over scene
+	await get_tree().create_timer(3.0).timeout
+	# Before switching, ensure mouse is released/visible so UI can be interacted with
+	if is_instance_valid(snake_controller) and snake_controller.has_method("release_mouse"):
+		snake_controller.release_mouse()
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	if is_inside_tree():
+		get_tree().change_scene_to_file("res://scenes/gameOver.tscn")
+
+func _show_game_over_overlay() -> void:
+	# Overlay disabled per latest requirement
+	pass
 
 ## Get current snake length
 func get_snake_length() -> int:

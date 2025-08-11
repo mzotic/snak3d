@@ -106,24 +106,27 @@ func _process(delta):
 			update_food_visual()
 
 func _input(event):
+	# Allow restart while frozen, but do NOT block other inputs (camera/free look)
 	if not game_controller.is_game_active:
-		if Input.is_action_just_pressed("ui_accept"):  # Space or Enter to restart
+		if Input.is_action_just_pressed("ui_accept"):
 			game_controller.restart_game()
-		return
+		# No return here — keep processing so camera controls still work
 	
-	# Local turning controls (no absolute forward/backward)
-	if Input.is_action_just_pressed("turn_left"):
-		game_controller.turn_left()
-		return
-	if Input.is_action_just_pressed("turn_right"):
-		game_controller.turn_right()
-		return
-	if Input.is_action_just_pressed("turn_up"):
-		game_controller.turn_up()
-		return
-	if Input.is_action_just_pressed("turn_down"):
-		game_controller.turn_down()
-		return
+	# Only allow turn inputs while the game is active
+	if game_controller.is_game_active:
+		# Local turning controls (no absolute forward/backward)
+		if Input.is_action_just_pressed("turn_left"):
+			game_controller.turn_left()
+			return
+		if Input.is_action_just_pressed("turn_right"):
+			game_controller.turn_right()
+			return
+		if Input.is_action_just_pressed("turn_up"):
+			game_controller.turn_up()
+			return
+		if Input.is_action_just_pressed("turn_down"):
+			game_controller.turn_down()
+			return
 
 ## Setup materials for visual elements
 func setup_materials():
@@ -235,13 +238,20 @@ func setup_walls():
 		front.size = Vector3(width, height, t)
 		front.position = Vector3(0, 0, half_d + t * 0.5)
 	
-	# Assign distinct colors to each wall for visualization
-	var mat_floor := StandardMaterial3D.new(); mat_floor.albedo_color = Color.from_hsv(0.0, 0.0, 0.35) # dark gray
-	var mat_roof := StandardMaterial3D.new(); mat_roof.albedo_color = Color.from_hsv(0.58, 0.35, 0.85) # light blue
-	var mat_left := StandardMaterial3D.new(); mat_left.albedo_color = Color(0.95, 0.25, 0.25) # red
-	var mat_right := StandardMaterial3D.new(); mat_right.albedo_color = Color(0.25, 0.9, 0.35) # green
-	var mat_back := StandardMaterial3D.new(); mat_back.albedo_color = Color(0.25, 0.35, 0.95) # blue
-	var mat_front := StandardMaterial3D.new(); mat_front.albedo_color = Color(0.95, 0.85, 0.25) # yellow
+	# Soft pastel, translucent materials for walls
+	var alpha := 0.35
+	var base := StandardMaterial3D.new()
+	base.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_DEPTH_PRE_PASS
+	base.cull_mode = BaseMaterial3D.CULL_DISABLED
+	base.roughness = 0.85
+	base.metallic = 0.0
+	
+	var mat_floor := (base.duplicate() as StandardMaterial3D); mat_floor.albedo_color = Color(0.92, 0.93, 0.96, alpha) # soft gray-blue
+	var mat_roof := (base.duplicate() as StandardMaterial3D); mat_roof.albedo_color = Color(0.75, 0.88, 1.0, alpha)  # pastel sky blue
+	var mat_left := (base.duplicate() as StandardMaterial3D); mat_left.albedo_color = Color(1.0, 0.70, 0.75, alpha)   # pastel pink/red
+	var mat_right := (base.duplicate() as StandardMaterial3D); mat_right.albedo_color = Color(0.75, 1.0, 0.80, alpha)  # pastel green
+	var mat_back := (base.duplicate() as StandardMaterial3D); mat_back.albedo_color = Color(0.70, 0.80, 1.0, alpha)   # pastel blue
+	var mat_front := (base.duplicate() as StandardMaterial3D); mat_front.albedo_color = Color(1.0, 1.0, 0.75, alpha)   # pastel yellow
 	
 	if floor: floor.material = mat_floor
 	if roof: roof.material = mat_roof
